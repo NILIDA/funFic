@@ -1,0 +1,362 @@
+{{define "read_book.html"}}
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>READING: {{.Book.Title}} - BookFan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Press+Start+2P&display=swap');
+        
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-green: #00ff00;
+            --neon-yellow: #ffff00;
+            --bg-dark: #0a0a0a;
+            --bg-darker: #000000;
+            --terminal-green: #00ff41;
+            --matrix-green: #008f11;
+            --error-red: #ff003c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg-darker);
+            color: var(--neon-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+        }
+        
+        .reader-container {
+            background: rgba(10, 10, 10, 0.95);
+            border: 3px solid var(--neon-cyan);
+            margin: 1rem;
+            position: relative;
+            min-height: calc(100vh - 2rem);
+        }
+        
+        .reader-container::before {
+            content: 'READING_INTERFACE';
+            position: absolute;
+            top: -0.8rem;
+            left: 1rem;
+            background: var(--bg-darker);
+            color: var(--neon-cyan);
+            padding: 0 1rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            z-index: 10;
+        }
+        
+        .reader-header {
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 2px solid var(--neon-pink);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .reader-content {
+            padding: 2rem;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+        
+        .text-content {
+            white-space: pre-wrap;
+            font-size: 1rem;
+            color: var(--neon-cyan);
+        }
+        
+        .markdown-content {
+            color: var(--neon-cyan);
+        }
+        
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            color: var(--neon-pink);
+            margin: 2rem 0 1rem;
+            border-bottom: 1px solid var(--neon-pink);
+            padding-bottom: 0.5rem;
+        }
+        
+        .markdown-content h1 {
+            font-size: 2rem;
+        }
+        
+        .markdown-content h2 {
+            font-size: 1.5rem;
+        }
+        
+        .markdown-content p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .markdown-content code {
+            background: rgba(255, 0, 255, 0.1);
+            color: var(--neon-yellow);
+            padding: 0.2rem 0.4rem;
+            border: 1px solid var(--neon-pink);
+        }
+        
+        .markdown-content pre {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--neon-cyan);
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        
+        .pdf-viewer {
+            width: 100%;
+            height: calc(100vh - 120px);
+            border: none;
+        }
+        
+        .reader-controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-btn {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .control-btn:hover {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+            transform: scale(1.1);
+        }
+        
+        .format-warning {
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid var(--error-red);
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem;
+        }
+        
+        .chapter-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid var(--neon-cyan);
+        }
+        
+        .progress-bar {
+            background: rgba(0, 255, 255, 0.1);
+            height: 4px;
+            margin: 1rem 0;
+            position: relative;
+        }
+        
+        .progress-fill {
+            background: var(--neon-pink);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .reader-controls {
+                position: static;
+                flex-direction: row;
+                justify-content: center;
+                margin: 1rem;
+            }
+            
+            .reader-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="reader-container">
+        <div class="reader-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 style="font-size: 1.2rem; color: var(--neon-pink); margin: 0;">
+                        {{.Book.Title}}
+                    </h1>
+                    <div style="font-size: 0.8rem; color: var(--terminal-green); font-family: 'Press Start 2P', cursive;">
+                        >_ READING: {{.Book.Title}}
+                    </div>
+                </div>
+                <div>
+                    <a href="/books/{{.Book.ID}}" class="brutal-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                        <i class="fas fa-arrow-left me-2"></i>BACK
+                    </a>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="readingProgress"></div>
+            </div>
+        </div>
+        
+        {{if or (eq .Ext ".txt") (eq .Ext ".md") (eq .Ext ".markdown") (eq .Ext ".html") (eq .Ext ".htm")}}
+        <div class="reader-content">
+            {{if .Content}}
+                {{if or (eq .Ext ".md") (eq .Ext ".markdown")}}
+                <div class="markdown-content">
+                    {{.Content | safeHTML}}
+                </div>
+                {{else if or (eq .Ext ".html") (eq .Ext ".htm")}}
+                <div class="html-content">
+                    {{.Content | safeHTML}}
+                </div>
+                {{else}}
+                <div class="text-content">
+                    {{.Content}}
+                </div>
+                {{end}}
+            {{else}}
+            <div class="format-warning">
+                <i class="fas fa-exclamation-triangle fa-2x mb-3" style="color: var(--error-red);"></i>
+                <h3 style="color: var(--error-red); margin-bottom: 1rem;">CONTENT_LOAD_ERROR</h3>
+                <p>UNABLE_TO_LOAD_BOOK_CONTENT</p>
+            </div>
+            {{end}}
+        </div>
+        {{else if eq .Ext ".pdf"}}
+        <iframe src="/books/{{.Book.ID}}/read?raw=true" class="pdf-viewer"></iframe>
+        {{else}}
+        <div class="format-warning">
+            <i class="fas fa-file fa-3x mb-3" style="color: var(--neon-yellow);"></i>
+            <h3 style="color: var(--neon-yellow); margin-bottom: 1rem;">FORMAT_NOT_SUPPORTED</h3>
+            <p style="margin-bottom: 2rem;">FILE_FORMAT: {{.Ext}}</p>
+            <div class="d-flex gap-2 justify-content-center flex-wrap">
+                <a href="/books/{{.Book.ID}}/read" class="brutal-btn brutal-btn-primary" download>
+                    <i class="fas fa-download me-2"></i>DOWNLOAD_FILE
+                </a>
+                <a href="/books/{{.Book.ID}}" class="brutal-btn">
+                    <i class="fas fa-arrow-left me-2"></i>BOOK_DETAILS
+                </a>
+                {{if .CanEdit}}
+                <a href="/books/{{.Book.ID}}/edit" class="brutal-btn" style="border-color: var(--neon-yellow); color: var(--neon-yellow);">
+                    <i class="fas fa-edit me-2"></i>EDIT_CONTENT
+                </a>
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+        
+        {{if or (eq .Ext ".txt") (eq .Ext ".md") (eq .Ext ".markdown") (eq .Ext ".html") (eq .Ext ".htm")}}
+        <div class="chapter-nav">
+            <button class="brutal-btn" onclick="scrollToTop()" style="padding: 0.5rem 1rem;">
+                <i class="fas fa-arrow-up me-2"></i>TOP
+            </button>
+            <div style="color: var(--terminal-green); font-family: 'Press Start 2P', cursive; font-size: 0.6rem;">
+                SCROLL_TO_NAVIGATE
+            </div>
+            <button class="brutal-btn" onclick="scrollToBottom()" style="padding: 0.5rem 1rem;">
+                <i class="fas fa-arrow-down me-2"></i>BOTTOM
+            </button>
+        </div>
+        {{end}}
+    </div>
+
+    <div class="reader-controls">
+        <a href="/books/{{.Book.ID}}" class="control-btn" title="Rate Book">
+            <i class="fas fa-star"></i>
+        </a>
+        <a href="/books/{{.Book.ID}}/read" class="control-btn" download title="Download">
+            <i class="fas fa-download"></i>
+        </a>
+        {{if .CanEdit}}
+        <a href="/books/{{.Book.ID}}/edit" class="control-btn" title="Edit" style="border-color: var(--neon-yellow); color: var(--neon-yellow);">
+            <i class="fas fa-edit"></i>
+        </a>
+        {{end}}
+        <button class="control-btn" onclick="toggleFullscreen()" title="Fullscreen">
+            <i class="fas fa-expand"></i>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function scrollToBottom() {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+        
+        // Reading progress
+        function updateReadingProgress() {
+            const winHeight = window.innerHeight;
+            const docHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.pageYOffset;
+            const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+            document.getElementById('readingProgress').style.width = scrollPercent + '%';
+        }
+        
+        window.addEventListener('scroll', updateReadingProgress);
+        window.addEventListener('resize', updateReadingProgress);
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'ArrowLeft':
+                    window.scrollBy(0, -100);
+                    break;
+                case 'ArrowDown':
+                case 'ArrowRight':
+                    window.scrollBy(0, 100);
+                    break;
+                case 'Home':
+                    scrollToTop();
+                    break;
+                case 'End':
+                    scrollToBottom();
+                    break;
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateReadingProgress();
+        });
+    </script>
+</body>
+</html>
+{{end}}

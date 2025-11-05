@@ -1,0 +1,347 @@
+{{define "register.html"}}
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM_ACCESS_REQUEST - BookFan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Press+Start+2P&display=swap');
+        
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-green: #00ff00;
+            --neon-yellow: #ffff00;
+            --bg-dark: #0a0a0a;
+            --bg-darker: #000000;
+            --terminal-green: #00ff41;
+            --matrix-green: #008f11;
+            --error-red: #ff003c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg-darker);
+            color: var(--neon-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 0, 255, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 20%);
+        }
+        
+        .glitch-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 255, 0.03) 2px,
+                    rgba(0, 255, 255, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: -1;
+            animation: scan 8s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        .noise::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="3" seed="1" stitchTiles="stitch" type="fractalNoise"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.1"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .brutal-container {
+            background: rgba(10, 10, 10, 0.95);
+            border: 3px solid var(--neon-yellow);
+            padding: 3rem;
+            position: relative;
+            max-width: 500px;
+            width: 100%;
+            margin: 2rem auto;
+        }
+        
+        .brutal-container::before {
+            content: 'REGISTRATION_PROTOCOL';
+            position: absolute;
+            top: -0.8rem;
+            left: 1rem;
+            background: var(--bg-darker);
+            color: var(--neon-yellow);
+            padding: 0 1rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+        }
+        
+        .brutal-container::after {
+            content: 'CREATE_NEW_USER_PROFILE';
+            position: absolute;
+            bottom: -0.8rem;
+            right: 1rem;
+            background: var(--bg-darker);
+            color: var(--terminal-green);
+            padding: 0 1rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .brutal-brand {
+            color: var(--neon-pink) !important;
+            text-decoration: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px var(--neon-pink);
+            animation: flicker 3s infinite alternate;
+            text-align: center;
+            display: block;
+            margin-bottom: 2rem;
+        }
+        
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 
+                    0 0 10px var(--neon-pink),
+                    0 0 20px var(--neon-pink),
+                    0 0 30px var(--neon-pink);
+                opacity: 1;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                opacity: 0.8;
+            }
+        }
+        
+        .brutal-form-control {
+            background: transparent !important;
+            border: 2px solid var(--neon-cyan) !important;
+            color: var(--neon-cyan) !important;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 1rem;
+            border-radius: 0 !important;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+        
+        .brutal-form-control:focus {
+            background: rgba(0, 255, 255, 0.05) !important;
+            border-color: var(--neon-pink) !important;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3) !important;
+            color: var(--neon-pink) !important;
+        }
+        
+        .brutal-btn {
+            background: transparent !important;
+            border: 2px solid var(--neon-yellow) !important;
+            color: var(--neon-yellow) !important;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .brutal-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--neon-yellow), transparent);
+            transition: left 0.5s;
+        }
+        
+        .brutal-btn:hover::before {
+            left: 100%;
+        }
+        
+        .brutal-btn:hover {
+            background: rgba(255, 255, 0, 0.1) !important;
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .form-label {
+            color: var(--neon-green);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .login-links {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .login-link {
+            color: var(--neon-cyan);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--neon-cyan);
+            transition: all 0.3s ease;
+        }
+        
+        .login-link:hover {
+            color: var(--neon-pink);
+            border-bottom-color: var(--neon-pink);
+        }
+        
+        .terminal-text {
+            color: var(--terminal-green);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            line-height: 1.4;
+        }
+        
+        .protocol-list {
+            color: var(--neon-cyan);
+            font-size: 0.8rem;
+            margin-bottom: 2rem;
+            padding-left: 1rem;
+        }
+        
+        .protocol-list li {
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        
+        .protocol-list li::before {
+            content: '>';
+            color: var(--terminal-green);
+            position: absolute;
+            left: -1rem;
+        }
+    </style>
+</head>
+<body class="noise">
+    <div class="glitch-bg"></div>
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="brutal-container">
+                    <a href="/" class="brutal-brand">
+                        <i class="fas fa-terminal me-2"></i>BOOKFAN
+                    </a>
+                    
+                    <div class="terminal-text">
+                        >_ INITIATE_USER_REGISTRATION_PROTOCOL
+                    </div>
+                    
+                    <ul class="protocol-list">
+                        <li>PROVIDE_USER_CREDENTIALS</li>
+                        <li>VERIFY_EMAIL_ADDRESS</li>
+                        <li>ACCEPT_TERMS_OF_SERVICE</li>
+                        <li>ACTIVATE_USER_PROFILE</li>
+                    </ul>
+                    
+                    <form method="POST" action="/register">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">USER_IDENTIFIER</label>
+                            <input type="text" class="brutal-form-control" id="username" name="username" 
+                                   placeholder="ENTER_USERNAME" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">CONTACT_PROTOCOL</label>
+                            <input type="email" class="brutal-form-control" id="email" name="email" 
+                                   placeholder="ENTER_EMAIL" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label">ACCESS_CODE</label>
+                            <input type="password" class="brutal-form-control" id="password" name="password" 
+                                   placeholder="GENERATE_PASSWORD" required>
+                        </div>
+                        
+                        <button type="submit" class="brutal-btn">
+                            <i class="fas fa-user-plus me-2"></i>CREATE_USER_PROFILE
+                        </button>
+                    </form>
+                    
+                    <div class="login-links">
+                        <div class="terminal-text" style="font-size: 0.6rem; margin-bottom: 1rem;">
+                            >_ EXISTING_USER_DETECTED
+                        </div>
+                        <a href="/login" class="login-link">
+                            <i class="fas fa-key me-1"></i>PROCEED_TO_LOGIN
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.brutal-form-control');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.style.animation = 'glitch 0.3s ease';
+                    setTimeout(() => {
+                        this.style.animation = '';
+                    }, 300);
+                });
+            });
+            
+            // Typewriter effect for terminal text
+            const terminalText = document.querySelector('.terminal-text');
+            const text = terminalText.textContent;
+            terminalText.textContent = '';
+            let i = 0;
+            
+            function typeWriter() {
+                if (i < text.length) {
+                    terminalText.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 50);
+                }
+            }
+            
+            setTimeout(typeWriter, 1000);
+        });
+    </script>
+</body>
+</html>
+{{end}}

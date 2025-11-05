@@ -1,0 +1,809 @@
+{{define "profile.html"}}
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USER_PROFILE - BookFan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Press+Start+2P&display=swap');
+        
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-green: #00ff00;
+            --neon-yellow: #ffff00;
+            --bg-dark: #0a0a0a;
+            --bg-darker: #000000;
+            --terminal-green: #00ff41;
+            --matrix-green: #008f11;
+            --error-red: #ff003c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg-darker);
+            color: var(--neon-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 0, 255, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 20%);
+            min-height: 100vh;
+        }
+        
+        .glitch-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 255, 0.03) 2px,
+                    rgba(0, 255, 255, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: -1;
+            animation: scan 8s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        .noise::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="3" seed="1" stitchTiles="stitch" type="fractalNoise"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.1"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* Навигация */
+        .brutal-nav {
+            background: rgba(10, 10, 10, 0.95) !important;
+            border-bottom: 3px solid var(--neon-pink);
+            backdrop-filter: blur(10px);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 1rem 0;
+        }
+        
+        .brutal-brand {
+            color: var(--neon-pink) !important;
+            text-decoration: none;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px var(--neon-pink);
+            animation: flicker 3s infinite alternate;
+        }
+        
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 
+                    0 0 10px var(--neon-pink),
+                    0 0 20px var(--neon-pink),
+                    0 0 30px var(--neon-pink);
+                opacity: 1;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                opacity: 0.8;
+            }
+        }
+        
+        .brutal-btn {
+            background: transparent !important;
+            border: 2px solid var(--neon-cyan) !important;
+            color: var(--neon-cyan) !important;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            padding: 0.8rem 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .brutal-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            transition: left 0.5s;
+        }
+        
+        .brutal-btn:hover::before {
+            left: 100%;
+        }
+        
+        .brutal-btn:hover {
+            background: rgba(0, 255, 255, 0.1) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .brutal-btn-primary {
+            border-color: var(--neon-pink) !important;
+            color: var(--neon-pink) !important;
+        }
+        
+        .brutal-btn-primary::before {
+            background: linear-gradient(90deg, transparent, var(--neon-pink), transparent);
+        }
+        
+        .brutal-btn-primary:hover {
+            background: rgba(255, 0, 255, 0.1) !important;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
+        }
+        
+        .brutal-btn-warning {
+            border-color: var(--neon-yellow) !important;
+            color: var(--neon-yellow) !important;
+        }
+        
+        /* Герой секция */
+        .brutal-hero {
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid var(--neon-green);
+            padding: 4rem 2rem;
+            margin: 3rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .brutal-hero::before {
+            content: '>>> ';
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: var(--terminal-green);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+        }
+        
+        .brutal-hero::after {
+            content: ' SYSTEM_READY';
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            color: var(--terminal-green);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .brutal-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2.5rem;
+            color: var(--neon-green);
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px var(--neon-green);
+            line-height: 1.4;
+        }
+        
+        .brutal-subtitle {
+            color: var(--neon-cyan);
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+        
+        /* Карточки книг */
+        .brutal-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--neon-cyan);
+            padding: 0;
+            margin-bottom: 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .brutal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--neon-cyan);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .brutal-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .brutal-card:hover {
+            border-color: var(--neon-pink);
+            transform: translateY(-5px) rotateX(5deg);
+            box-shadow: 
+                0 10px 20px rgba(255, 0, 255, 0.2),
+                inset 0 0 20px rgba(255, 0, 255, 0.1);
+        }
+        
+        .brutal-card:hover::before {
+            background: var(--neon-pink);
+        }
+        
+        .brutal-card-cover {
+            height: 250px;
+            background: linear-gradient(45deg, #000, #111);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 2px solid var(--neon-cyan);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .brutal-card-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .brutal-card:hover .brutal-card-cover img {
+            transform: scale(1.1);
+        }
+        
+        .brutal-card-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--neon-pink);
+            color: black;
+            padding: 0.5rem 1rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            border: 2px solid black;
+        }
+        
+        .brutal-card-body {
+            padding: 1.5rem;
+        }
+        
+        .brutal-card-title {
+            color: var(--neon-green);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        
+        .brutal-card-text {
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .brutal-tag {
+            display: inline-block;
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--neon-cyan);
+            padding: 0.3rem 0.8rem;
+            margin: 0.2rem;
+            border: 1px solid var(--neon-cyan);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .brutal-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .brutal-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--neon-yellow);
+            font-size: 0.8rem;
+        }
+        
+        /* Поиск и фильтры */
+        .brutal-search-container {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--neon-green);
+            padding: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .brutal-search-container::before {
+            content: 'SEARCH_INTERFACE';
+            position: absolute;
+            top: -0.8rem;
+            left: 1rem;
+            background: var(--bg-darker);
+            color: var(--neon-green);
+            padding: 0 1rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+        }
+        
+        .brutal-form-control {
+            background: transparent !important;
+            border: 2px solid var(--neon-cyan) !important;
+            color: var(--neon-cyan) !important;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 1rem;
+            border-radius: 0 !important;
+        }
+        
+        .brutal-form-control:focus {
+            background: rgba(0, 255, 255, 0.05) !important;
+            border-color: var(--neon-pink) !important;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3) !important;
+            color: var(--neon-pink) !important;
+        }
+        
+        .brutal-form-select {
+            background: transparent !important;
+            border: 2px solid var(--neon-cyan) !important;
+            color: var(--neon-cyan) !important;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 1rem;
+            border-radius: 0 !important;
+        }
+        
+        /* Анимации появления */
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: var(--neon-green); }
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: 3px solid var(--neon-green);
+            white-space: nowrap;
+            margin: 0 auto;
+            animation: 
+                typewriter 3s steps(40, end),
+                blink-caret 0.75s step-end infinite;
+        }
+        
+        /* Футер */
+        .brutal-footer {
+            background: rgba(10, 10, 10, 0.95);
+            border-top: 3px solid var(--neon-pink);
+            padding: 2rem 0;
+            margin-top: 4rem;
+            text-align: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            color: var(--neon-cyan);
+        }
+        
+        /* Плавающая кнопка */
+        .brutal-float-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--neon-pink);
+            border: 3px solid black;
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            text-decoration: none;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            font-family: 'Press Start 2P', cursive;
+        }
+        
+        .brutal-float-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: var(--neon-green);
+            color: black;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .brutal-title {
+                font-size: 1.5rem;
+            }
+            
+            .brutal-subtitle {
+                font-size: 1rem;
+            }
+            
+            .brutal-nav {
+                font-size: 0.6rem;
+            }
+            
+            .brutal-brand {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Специальные эффекты */
+        .glitch-text {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--neon-pink);
+            animation: glitch-1 0.5s infinite linear alternate-reverse;
+        }
+        
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: 2px 0 var(--neon-cyan);
+            animation: glitch-2 0.5s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-1 {
+            0% { clip: rect(42px, 9999px, 44px, 0); }
+            5% { clip: rect(12px, 9999px, 59px, 0); }
+            10% { clip: rect(48px, 9999px, 29px, 0); }
+            15% { clip: rect(42px, 9999px, 73px, 0); }
+            20% { clip: rect(63px, 9999px, 27px, 0); }
+            25% { clip: rect(34px, 9999px, 55px, 0); }
+            30% { clip: rect(86px, 9999px, 73px, 0); }
+            35% { clip: rect(20px, 9999px, 20px, 0); }
+            40% { clip: rect(26px, 9999px, 60px, 0); }
+            45% { clip: rect(25px, 9999px, 66px, 0); }
+            50% { clip: rect(57px, 9999px, 98px, 0); }
+            55% { clip: rect(5px, 9999px, 46px, 0); }
+            60% { clip: rect(82px, 9999px, 31px, 0); }
+            65% { clip: rect(54px, 9999px, 27px, 0); }
+            70% { clip: rect(28px, 9999px, 99px, 0); }
+            75% { clip: rect(45px, 9999px, 69px, 0); }
+            80% { clip: rect(23px, 9999px, 85px, 0); }
+            85% { clip: rect(54px, 9999px, 84px, 0); }
+            90% { clip: rect(45px, 9999px, 47px, 0); }
+            95% { clip: rect(37px, 9999px, 20px, 0); }
+            100% { clip: rect(4px, 9999px, 91px, 0); }
+        }
+        
+        @keyframes glitch-2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            5% { clip: rect(52px, 9999px, 74px, 0); }
+            10% { clip: rect(79px, 9999px, 85px, 0); }
+            15% { clip: rect(75px, 9999px, 5px, 0); }
+            20% { clip: rect(67px, 9999px, 61px, 0); }
+            25% { clip: rect(14px, 9999px, 79px, 0); }
+            30% { clip: rect(1px, 9999px, 66px, 0); }
+            35% { clip: rect(86px, 9999px, 30px, 0); }
+            40% { clip: rect(23px, 9999px, 98px, 0); }
+            45% { clip: rect(85px, 9999px, 72px, 0); }
+            50% { clip: rect(71px, 9999px, 75px, 0); }
+            55% { clip: rect(2px, 9999px, 48px, 0); }
+            60% { clip: rect(30px, 9999px, 16px, 0); }
+            65% { clip: rect(59px, 9999px, 50px, 0); }
+            70% { clip: rect(41px, 9999px, 62px, 0); }
+            75% { clip: rect(2px, 9999px, 82px, 0); }
+            80% { clip: rect(47px, 9999px, 73px, 0); }
+            85% { clip: rect(3px, 9999px, 27px, 0); }
+            90% { clip: rect(26px, 9999px, 55px, 0); }
+            95% { clip: rect(42px, 9999px, 97px, 0); }
+            100% { clip: rect(38px, 9999px, 49px, 0); }
+        }
+        .brutal-profile-container {
+            background: rgba(10, 10, 10, 0.95);
+            border: 3px solid var(--neon-cyan);
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .brutal-profile-container::before {
+            content: 'USER_PROFILE_INTERFACE';
+            position: absolute;
+            top: -0.8rem;
+            left: 1rem;
+            background: var(--bg-darker);
+            color: var(--neon-cyan);
+            padding: 0 1rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+        }
+        
+        .user-avatar-large {
+            width: 120px;
+            height: 120px;
+            background: var(--neon-pink);
+            border: 3px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-weight: 700;
+            font-size: 3rem;
+            text-transform: uppercase;
+            margin: 0 auto 1rem;
+            font-family: 'Press Start 2P', cursive;
+        }
+        
+        .user-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-item {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid var(--neon-cyan);
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            color: var(--neon-yellow);
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Press Start 2P', cursive;
+        }
+        
+        .stat-label {
+            color: var(--neon-cyan);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            border: 2px dashed var(--neon-cyan);
+            margin: 2rem 0;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body class="noise">
+    <div class="glitch-bg"></div>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark brutal-nav">
+        <div class="container">
+            <a class="navbar-brand brutal-brand" href="/">
+                <i class="fas fa-terminal me-2"></i>BOOKFAN
+            </a>
+            
+            <div class="d-flex align-items-center">
+                <a href="/" class="brutal-btn me-2">
+                    <i class="fas fa-home me-2"></i>MAINFRAME
+                </a>
+                
+                {{if .User}}
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle brutal-btn" 
+                       data-bs-toggle="dropdown" style="padding: 0.5rem 1rem;">
+                        <div class="user-avatar me-2" style="width: 32px; height: 32px; background: var(--neon-pink); border-radius: 0; border: 2px solid black; display: flex; align-items: center; justify-content: center; color: black; font-weight: 700; font-size: 0.8rem;">
+                            {{if .User.Username}}
+                                {{.User.Username | FirstChar}}
+                            {{else}}
+                                U
+                            {{end}}
+                        </div>
+                        <span>{{.User.Username}}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark" style="background: #000; border: 2px solid var(--neon-cyan);">
+                        <li><a class="dropdown-item brutal-btn" href="/profile" style="border: none; color: var(--neon-cyan);">
+                            <i class="fas fa-user me-2"></i>PROFILE
+                        </a></li>
+                        <li><a class="dropdown-item brutal-btn" href="/edit-profile" style="border: none; color: var(--neon-cyan);">
+                            <i class="fas fa-cog me-2"></i>EDIT_PROFILE
+                        </a></li>
+                        <li><a class="dropdown-item brutal-btn" href="/upload" style="border: none; color: var(--neon-cyan);">
+                            <i class="fas fa-plus me-2"></i>CREATE_BOOK
+                        </a></li>
+                        <li><hr class="dropdown-divider" style="border-color: var(--neon-cyan);"></li>
+                        <li>
+                            <form method="POST" action="/logout" class="d-inline">
+                                <button type="submit" class="dropdown-item brutal-btn" style="border: none; color: var(--error-red);">
+                                    <i class="fas fa-sign-out-alt me-2"></i>LOGOUT
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        <div class="brutal-profile-container">
+            <div class="text-center mb-4">
+                <div class="user-avatar-large">
+                    {{if .User.Avatar}}
+                    <img src="/static/{{.User.Avatar}}" alt="{{.User.Username}}">
+                    {{else}}
+                        {{if .User.Username}}
+                            {{.User.Username | FirstChar}}
+                        {{else}}
+                            U
+                        {{end}}
+                    {{end}}
+                </div>
+                <h1 class="brutal-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">
+                    {{.User.Username}}
+                </h1>
+                <div class="terminal-text" style="font-size: 0.7rem;">
+                    >_ USER_ID: {{.User.ID}} | STATUS: ACTIVE
+                </div>
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-value">{{len .Books}}</div>
+                    <div class="stat-label">PUBLICATIONS</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{.User.ID}}</div>
+                    <div class="stat-label">USER_ID</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">ACTIVE</div>
+                    <div class="stat-label">STATUS</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{.User.Email}}</div>
+                    <div class="stat-label">CONTACT</div>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <a href="/upload" class="brutal-btn brutal-btn-primary">
+                    <i class="fas fa-plus me-2"></i>NEW_PUBLICATION
+                </a>
+                <a href="/edit-profile" class="brutal-btn">
+                    <i class="fas fa-cog me-2"></i>EDIT_PROFILE
+                </a>
+            </div>
+
+            <h2 class="brutal-title" style="font-size: 1.2rem; margin: 2rem 0 1rem;">
+                <i class="fas fa-books me-2"></i>USER_PUBLICATIONS
+            </h2>
+
+            {{if .Books}}
+            <div class="row g-4">
+                {{range .Books}}
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="brutal-card">
+                        <div class="brutal-card-cover">
+                            {{if .CoverImage}}
+                            <img src="/{{.CoverImage}}" alt="{{.Title}}">
+                            {{else}}
+                            <i class="fas fa-book" style="font-size: 3rem; color: var(--neon-cyan);"></i>
+                            {{end}}
+                            <div class="brutal-card-badge">
+                                <i class="fas fa-star me-1"></i>{{printf "%.1f" .Rating}}
+                            </div>
+                        </div>
+                        <div class="brutal-card-body">
+                            <h3 class="brutal-card-title">{{.Title}}</h3>
+                            <p class="brutal-card-text" style="color: var(--neon-cyan);">
+                                <i class="fas fa-user-edit me-1"></i>{{.Author}}
+                            </p>
+                            
+                            <p class="brutal-card-text" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{.Description}}
+                            </p>
+                            
+                            <div class="brutal-stats">
+                                <div class="brutal-stat">
+                                    <i class="fas fa-star"></i>
+                                    <span>{{printf "%.1f" .Rating}}</span>
+                                </div>
+                                <div class="brutal-stat">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>{{.CreatedAt}}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <a href="/books/{{.ID}}" class="brutal-btn brutal-btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                    <i class="fas fa-eye me-1"></i>VIEW
+                                </a>
+                                <form method="POST" action="/books/{{.ID}}/delete" class="d-inline" 
+                                      onsubmit="return confirm('CONFIRM_DELETION_PROTOCOL?')">
+                                    <button type="submit" class="brutal-btn" style="padding: 0.5rem; font-size: 0.8rem; border-color: var(--error-red); color: var(--error-red);">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+            {{else}}
+            <div class="empty-state">
+                <i class="fas fa-books fa-3x mb-3" style="color: var(--neon-cyan);"></i>
+                <h3 class="brutal-title" style="font-size: 1rem; margin-bottom: 1rem;">
+                    NO_PUBLICATIONS_DETECTED
+                </h3>
+                <p class="terminal-text" style="margin-bottom: 2rem;">
+                    >_ INITIATE_FIRST_PUBLICATION_SEQUENCE
+                </p>
+                <a href="/upload" class="brutal-btn brutal-btn-primary">
+                    <i class="fas fa-rocket me-2"></i>LAUNCH_FIRST_BOOK
+                </a>
+            </div>
+            {{end}}
+        </div>
+    </main>
+
+    <footer class="brutal-footer">
+        <div class="container">
+            <p>>_ BOOKFAN_NETWORK :: USER_PROFILE_INTERFACE :: 2024</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{{end}}

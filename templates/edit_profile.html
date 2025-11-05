@@ -1,0 +1,269 @@
+{{define "edit_profile.html"}}
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDIT_PROFILE - BookFan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Press+Start+2P&display=swap');
+        
+        .profile-editor-container {
+            background: rgba(10, 10, 10, 0.95);
+            border: 3px solid var(--neon-cyan);
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .profile-editor-container::before {
+            content: 'PROFILE_EDITOR';
+            position: absolute;
+            top: -0.8rem;
+            left: 1rem;
+            background: var(--bg-darker);
+            color: var(--neon-cyan);
+            padding: 0 1rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+        }
+        
+        .avatar-upload {
+            text-align: center;
+            padding: 2rem;
+            border: 2px dashed var(--neon-cyan);
+            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .avatar-upload:hover {
+            border-color: var(--neon-pink);
+            background: rgba(255, 0, 255, 0.05);
+        }
+        
+        .user-avatar-large {
+            width: 150px;
+            height: 150px;
+            background: var(--neon-pink);
+            border: 3px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-weight: 700;
+            font-size: 4rem;
+            text-transform: uppercase;
+            margin: 0 auto 1rem;
+            font-family: 'Press Start 2P', cursive;
+        }
+        
+        .user-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .security-section {
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid var(--error-red);
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .security-warning {
+            color: var(--error-red);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="noise">
+    <div class="glitch-bg"></div>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark brutal-nav">
+        <div class="container">
+            <a class="navbar-brand brutal-brand" href="/">
+                <i class="fas fa-terminal me-2"></i>BOOKFAN
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="/profile" class="brutal-btn me-2">
+                    <i class="fas fa-arrow-left me-2"></i>BACK_TO_PROFILE
+                </a>
+                
+                {{if .User}}
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle brutal-btn" 
+                       data-bs-toggle="dropdown" style="padding: 0.5rem 1rem;">
+                        <div class="user-avatar me-2">
+                            {{if .User.Avatar}}
+                            <img src="/{{.User.Avatar}}" alt="{{.User.Username}}">
+                            {{else}}
+                                {{if .User.Username}}
+                                    {{.User.Username | FirstChar}}
+                                {{else}}
+                                    U
+                                {{end}}
+                            {{end}}
+                        </div>
+                        <span>{{.User.Username}}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark" style="background: #000; border: 2px solid var(--neon-cyan);">
+                        <li><a class="dropdown-item brutal-btn" href="/profile" style="border: none; color: var(--neon-cyan);">
+                            <i class="fas fa-user me-2"></i>PROFILE
+                        </a></li>
+                        <li><a class="dropdown-item brutal-btn" href="/edit-profile" style="border: none; color: var(--neon-cyan);">
+                            <i class="fas fa-cog me-2"></i>EDIT_PROFILE
+                        </a></li>
+                        <li><a class="dropdown-item brutal-btn" href="/upload" style="border: none; color: var(--neon-cyan);">
+                            <i class="fas fa-plus me-2"></i>CREATE_BOOK
+                        </a></li>
+                        <li><hr class="dropdown-divider" style="border-color: var(--neon-cyan);"></li>
+                        <li>
+                            <form method="POST" action="/logout" class="d-inline">
+                                <button type="submit" class="dropdown-item brutal-btn" style="border: none; color: var(--error-red);">
+                                    <i class="fas fa-sign-out-alt me-2"></i>LOGOUT
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        <div class="profile-editor-container">
+            <h1 class="brutal-title" style="font-size: 1.5rem; margin-bottom: 2rem; text-align: center;">
+                <i class="fas fa-cog me-2"></i>PROFILE_CONFIGURATION
+            </h1>
+            
+            <form method="POST" action="/update-profile" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="avatar-upload" onclick="document.getElementById('avatar').click()">
+                            <div class="user-avatar-large">
+                                {{if .User.Avatar}}
+                                <img src="/static/{{.User.Avatar}}" alt="{{.User.Username}}">
+                                {{else}}
+                                    {{if .User.Username}}
+                                        {{.User.Username | FirstChar}}
+                                    {{else}}
+                                        U
+                                    {{end}}
+                                {{end}}
+                            </div>
+                            <div class="terminal-text" style="margin-top: 1rem;">
+                                >_ CLICK_TO_CHANGE_AVATAR
+                            </div>
+                            <input type="file" class="d-none" id="avatar" name="avatar" accept="image/*">
+                        </div>
+                        
+                        <div class="terminal-text" style="font-size: 0.6rem; text-align: center;">
+                            RECOMMENDED: 200x200px
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label class="form-label">USER_IDENTIFIER</label>
+                            <input type="text" class="brutal-form-control" name="username" 
+                                   value="{{.User.Username}}" placeholder="ENTER_USERNAME">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">CONTACT_PROTOCOL</label>
+                            <input type="email" class="brutal-form-control" name="email" 
+                                   value="{{.User.Email}}" placeholder="ENTER_EMAIL">
+                        </div>
+                        
+                        <div class="security-section">
+                            <div class="security-warning">
+                                >_ SECURITY_PROTOCOL
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">CURRENT_ACCESS_CODE</label>
+                                <input type="password" class="brutal-form-control" name="current_password" 
+                                       placeholder="ENTER_CURRENT_PASSWORD" required>
+                                <div class="terminal-text" style="font-size: 0.6rem; margin-top: 0.5rem;">
+                                    REQUIRED_FOR_ANY_CHANGES
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">NEW_ACCESS_CODE</label>
+                                <input type="password" class="brutal-form-control" name="new_password" 
+                                       placeholder="ENTER_NEW_PASSWORD">
+                                <div class="terminal-text" style="font-size: 0.6rem; margin-top: 0.5rem;">
+                                    OPTIONAL: LEAVE_EMPTY_TO_KEEP_CURRENT
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-actions">
+                            <button type="submit" class="brutal-btn brutal-btn-primary">
+                                <i class="fas fa-save me-2"></i>UPDATE_PROFILE
+                            </button>
+                            <a href="/profile" class="brutal-btn">
+                                <i class="fas fa-times me-2"></i>CANCEL
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="brutal-footer">
+        <div class="container">
+            <p>>_ BOOKFAN_NETWORK :: PROFILE_EDITOR :: 2024</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const avatarInput = document.getElementById('avatar');
+            const avatarPreview = document.querySelector('.user-avatar-large');
+            
+            avatarInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    }
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Password strength indicator
+            const newPassword = document.querySelector('input[name="new_password"]');
+            if (newPassword) {
+                newPassword.addEventListener('input', function() {
+                    const strength = calculatePasswordStrength(this.value);
+                    // You can add visual feedback for password strength
+                });
+            }
+            
+            function calculatePasswordStrength(password) {
+                let strength = 0;
+                if (password.length >= 8) strength++;
+                if (password.match(/[a-z]/)) strength++;
+                if (password.match(/[A-Z]/)) strength++;
+                if (password.match(/[0-9]/)) strength++;
+                if (password.match(/[^a-zA-Z0-9]/)) strength++;
+                return strength;
+            }
+        });
+    </script>
+</body>
+</html>
+{{end}}

@@ -1,0 +1,262 @@
+{{define "edit_book.html"}}
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDIT: {{.Book.Title}} - BookFan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Press+Start+2P&display=swap');
+        
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-green: #00ff00;
+            --neon-yellow: #ffff00;
+            --bg-dark: #0a0a0a;
+            --bg-darker: #000000;
+            --terminal-green: #00ff41;
+            --matrix-green: #008f11;
+            --error-red: #ff003c;
+        }
+        
+        .editor-container {
+            background: rgba(10, 10, 10, 0.95);
+            border: 3px solid var(--neon-yellow);
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .editor-container::before {
+            content: 'EDITOR_INTERFACE';
+            position: absolute;
+            top: -0.8rem;
+            left: 1rem;
+            background: var(--bg-darker);
+            color: var(--neon-yellow);
+            padding: 0 1rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+        }
+        
+        .code-editor {
+            background: #000;
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            width: 100%;
+            min-height: 500px;
+            padding: 1rem;
+            resize: vertical;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: auto;
+        }
+        
+        .editor-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .format-badge {
+            background: var(--neon-pink);
+            color: black;
+            padding: 0.3rem 0.8rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            border: 2px solid black;
+            display: inline-block;
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body class="noise">
+    <div class="glitch-bg"></div>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark brutal-nav">
+        <div class="container">
+            <a class="navbar-brand brutal-brand" href="/books/{{.Book.ID}}">
+                <i class="fas fa-arrow-left me-2"></i>BACK_TO_BOOK
+            </a>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        <div class="editor-container">
+            <h1 class="brutal-title" style="font-size: 1.5rem; margin-bottom: 2rem;">
+                <i class="fas fa-code me-2"></i>EDIT_BOOK_PROTOCOL
+                <span class="format-badge">{{.Book.Filename}}</span>
+            </h1>
+            
+            <form method="POST" action="/books/{{.Book.ID}}/update">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">TITLE_IDENTIFIER</label>
+                            <input type="text" class="brutal-form-control" name="title" value="{{.Book.Title}}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">AUTHOR_PROFILE</label>
+                            <input type="text" class="brutal-form-control" name="author" value="{{.Book.Author}}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">DESCRIPTION_PROTOCOL</label>
+                            <textarea class="brutal-form-control" name="description" rows="5" 
+                                      style="height: 150px;">{{.Book.Description}}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">TAGS_METADATA</label>
+                            <input type="text" class="brutal-form-control" name="tags" value="{{.Book.Tags}}" 
+                                   placeholder="TAG1,TAG2,TAG3">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="book-info">
+                            <div class="terminal-text" style="margin-bottom: 1rem;">
+                                >_ FILE_INFORMATION
+                            </div>
+                            <div class="book-stats">
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-file"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-value">{{.Book.Filename}}</div>
+                                        <div class="stat-label">FILENAME</div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-hdd"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-value">{{.Book.FileSize | formatFileSize}}</div>
+                                        <div class="stat-label">SIZE</div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-value">{{.Book.CreatedAt}}</div>
+                                        <div class="stat-label">CREATED</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{if .CanEditContent}}
+                <div class="editor-container mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label class="form-label">CONTENT_EDITOR</label>
+                        <div class="terminal-text" style="font-size: 0.6rem;">
+                            EDITING: {{.Book.Filename}}
+                        </div>
+                    </div>
+                    <textarea class="code-editor" name="content" 
+                              placeholder="ENTER_BOOK_CONTENT...">{{.Content}}</textarea>
+                    <div class="terminal-text" style="font-size: 0.6rem; margin-top: 1rem;">
+                        >_ SUPPORTED_FORMATS: TXT, MD, MARKDOWN
+                    </div>
+                </div>
+                {{else}}
+                <div class="editor-container mt-4">
+                    <div class="format-warning text-center">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-3" style="color: var(--neon-yellow);"></i>
+                        <h4 style="color: var(--neon-yellow); margin-bottom: 1rem;">EDITING_RESTRICTED</h4>
+                        <p>CONTENT_EDITING_NOT_AVAILABLE_FOR_FORMAT: {{.Book.Filename}}</p>
+                        <div class="terminal-text" style="font-size: 0.6rem; margin-top: 1rem;">
+                            >_ SUPPORTED_EDITING_FORMATS: .TXT, .MD, .MARKDOWN
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+
+                <div class="editor-actions">
+                    <button type="submit" class="brutal-btn brutal-btn-primary">
+                        <i class="fas fa-save me-2"></i>SAVE_CHANGES
+                    </button>
+                    <a href="/books/{{.Book.ID}}" class="brutal-btn">
+                        <i class="fas fa-times me-2"></i>CANCEL
+                    </a>
+                    {{if .CanEditContent}}
+                    <button type="button" class="brutal-btn" style="border-color: var(--neon-green); color: var(--neon-green);"
+                            onclick="formatContent()">
+                        <i class="fas fa-code me-2"></i>FORMAT
+                    </button>
+                    {{end}}
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function formatContent() {
+            const editor = document.querySelector('.code-editor');
+            const content = editor.value;
+            
+            // Basic formatting for markdown
+            if (content.includes('#') || content.includes('*') || content.includes('`')) {
+                // It's likely markdown, we can add some basic formatting helpers
+                editor.style.fontFamily = "'JetBrains Mono', monospace";
+                editor.style.lineHeight = '1.5';
+            }
+            
+            // Add some basic syntax highlighting preview
+            editor.addEventListener('input', function() {
+                // Simple syntax highlighting for headers
+                this.innerHTML = this.value
+                    .replace(/^(#+)(.*)/gm, '<span style="color: var(--neon-pink);">$1$2</span>')
+                    .replace(/\*\*(.*?)\*\*/g, '<span style="color: var(--neon-yellow);">**$1**</span>')
+                    .replace(/\*(.*?)\*/g, '<span style="color: var(--neon-cyan);">*$1*</span>');
+            });
+        }
+        
+        // Auto-resize textarea
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const textareas = document.querySelectorAll('textarea');
+            textareas.forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    autoResize(this);
+                });
+                autoResize(textarea);
+            });
+            
+            // Add some editor enhancements
+            const codeEditor = document.querySelector('.code-editor');
+            if (codeEditor) {
+                codeEditor.addEventListener('keydown', function(e) {
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const start = this.selectionStart;
+                        const end = this.selectionEnd;
+                        
+                        this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                        this.selectionStart = this.selectionEnd = start + 4;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+{{end}}

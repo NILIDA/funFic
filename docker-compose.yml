@@ -1,0 +1,17 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: bookplatform-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: love
+      MYSQL_DATABASE: bookplatform
+      MYSQL_USER: bookuser
+      MYSQL_PASSWORD: bookpass
+    ports:
+      - "3307:3306"  # Изменили порт на 3307
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  mysql_data:
