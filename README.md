@@ -17,8 +17,8 @@
 
 ## 📸 Скриншоты / Гифки
 # Главная страница
-* <img width="1257" height="934" alt="5646456" src="https://github.com/user-attachments/assets/3650c0c7-58ac-4c8c-9323-2817763c5f77" />
+ <img width="1257" height="934" alt="5646456" src="https://github.com/user-attachments/assets/3650c0c7-58ac-4c8c-9323-2817763c5f77" />
 # Описание книги
-* <img width="1243" height="949" alt="3334234" src="https://github.com/user-attachments/assets/a107145e-a86b-4cc4-a726-6b74623e84dd" />
+ <img width="1243" height="949" alt="3334234" src="https://github.com/user-attachments/assets/a107145e-a86b-4cc4-a726-6b74623e84dd" />
 # Режим чтения книги
-* <img width="1422" height="947" alt="656464" src="https://github.com/user-attachments/assets/373b78a7-a43d-49fe-a7a6-8884629784be" />
+ <img width="1422" height="947" alt="656464" src="https://github.com/user-attachments/assets/373b78a7-a43d-49fe-a7a6-8884629784be" />
